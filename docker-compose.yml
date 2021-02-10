@@ -9,6 +9,8 @@ services:
       image: mariadb
       volumes:
         - mysql_data:/var/lib/mysql
+      networks:
+        - keycloakmariadb
       environment:
         MYSQL_ROOT_PASSWORD: root
         MYSQL_DATABASE: keycloak
@@ -28,5 +30,9 @@ services:
         KEYCLOAK_USER: admin
         KEYCLOAK_PASSWORD: Pa55w0rd
         JGROUPS_DISCOVERY_PROTOCOL: JDBC_PING
+      networks:
+        - keycloakmariadb
+        - keycloak
+        - ingress
       depends_on:
         - mariadb
