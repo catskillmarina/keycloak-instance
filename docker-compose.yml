@@ -4,6 +4,14 @@ volumes:
   mysql_data:
       driver: local
 
+networks:
+  keycloakmariadb:
+    driver: bridge
+  keycloak:
+    external: true
+  ingress:
+    external: true
+
 services:
   mariadb:
       image: mariadb
@@ -20,19 +28,25 @@ services:
       healthcheck:
         test: ["CMD", "mysqladmin", "ping", "--silent"]
   keycloak:
-      image: quay.io/keycloak/keycloak:latest
+      image: jboss/keycloak
+      #image: quay.io/keycloak/keycloak:latest
       environment:
-        DB_VENDOR: mariadb
-        DB_ADDR: mariadb
-        DB_DATABASE: keycloak
-        DB_USER: keycloak
-        DB_PASSWORD: password
-        KEYCLOAK_USER: admin
-        KEYCLOAK_PASSWORD: Pa55w0rd
-        JGROUPS_DISCOVERY_PROTOCOL: JDBC_PING
+        - DB_VENDOR=mariadb
+        - DB_ADDR=mariadb
+        - DB_DATABASE=keycloak
+        - DB_USER=keycloak
+        - DB_PASSWORD=password
+        # -KEYCLOAK_USER: admin
+        # -KEYCLOAK_PASSWORD: Pa55w0rd
+        - JGROUPS_DISCOVERY_PROTOCOL=JDBC_PING
+        - PROXY_ADDRESS_FORWARDING=true
       networks:
         - keycloakmariadb
         - keycloak
         - ingress
+      expose:
+      - 8080
+      # ports:
+      # - 8080:8080
       depends_on:
         - mariadb
